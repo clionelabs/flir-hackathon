@@ -12,7 +12,7 @@ public class Payload {
     public final Integer width = 40;
     public final Integer height = 30;
     public final List heat;
-    public Payload(Double latitude, Double longitude, Double altitudeInM, ArrayList<Integer> imageGray) {
+    public Payload(Double latitude, Double longitude, Double altitudeInM, ArrayList<Double> imageGray) {
         this.latitude = latitude;
         this.longitude = longitude;
         this.altitude = altitudeInM;

@@ -5,6 +5,7 @@ import android.app.AlertDialog;
 import android.content.DialogInterface;
 import android.graphics.Color;
 import android.graphics.ColorFilter;
+import android.graphics.Matrix;
 import android.graphics.PorterDuff;
 import android.location.Location;
 import android.media.MediaScannerConnection;
@@ -96,6 +97,15 @@ public class MainActivity extends Activity implements
     private String LAST_UPDATED_TIME_STRING_KEY = "LAST_UPDATED_TIME_STRING_KEY";
     private Runnable timer;
     private Handler handler;
+
+    private Double DEFAULT_LAT = 22.490336;
+    private Double DEFAULT_LONG = 114.183572;
+    private Double DEFAULT_ALTITUDE = 400.0;
+
+    private Double latitude = DEFAULT_LAT;
+    private Double longtitude = DEFAULT_LONG;
+    private Double altitude = DEFAULT_ALTITUDE;
+
     // Device Delegate methods
 
     // Called during device discovery, when a device is connected
@@ -103,6 +113,43 @@ public class MainActivity extends Activity implements
     // You should also set the power update delegate for the device if you have one
     // Go ahead and start frame stream as soon as connected, in this use case
     // Finally we create a frame processor for rendering frames
+
+    public void onResetClicked(View v) {
+        this.latitude = DEFAULT_LAT;
+        this.longtitude = DEFAULT_LONG;
+        this.altitude = DEFAULT_ALTITUDE;
+    }
+
+    public void onUpClicked(View v) {
+
+        this.longtitude = this.longtitude + 0.001;
+        updateUI();
+    }
+    public void onDownClicked(View v) {
+
+        this.longtitude = this.longtitude - 0.001;
+        updateUI();
+    }
+    public void onLeftClicked(View v) {
+        this.latitude = this.latitude + 0.001;
+        updateUI();
+
+    }
+    public void onRightClicked(View v) {
+
+        this.latitude = this.latitude - 0.001;
+        updateUI();
+    }
+    public void onHigherClicked(View v) {
+
+        this.altitude = this.altitude + 20;
+        updateUI();
+    }
+    public void onLowerClicked(View v) {
+
+        this.altitude = this.altitude - 20;
+        updateUI();
+    }
 
     public void onDeviceConnected(Device device){
         Log.i("ExampleApp", "Device connected!");
@@ -271,12 +318,29 @@ public class MainActivity extends Activity implements
     }
 
     private Bitmap thermalBitmap = null;
-    private ArrayList<Integer> convertPixelData(Bitmap b) {
+    private ArrayList<Double> convertPixelData(Bitmap b, int width, int height) {
         int[] pixels = new int[b.getWidth() * b.getHeight()];
-        ArrayList<Integer> result = new ArrayList<Integer>();
-        b.getPixels(pixels,0,b.getWidth(),0,0,b.getWidth(),b.getHeight());
+        b.getPixels(pixels, 0, b.getWidth(), 0, 0, b.getWidth(), b.getHeight());
+
+        int mapWidth = b.getWidth();
+        int mapHeight = b.getHeight();
+        int widthSpan = mapWidth / width;
+        int heightSpan = mapHeight / height;
+        double[][] sumValue = new double[height][width];
         for (int i = 0; i < pixels.length; i++) {
-            result.add(pixels[i] & 0x000000FF);
+            int row = i / mapWidth;
+            int col = i % mapWidth;
+            int mappedRow = row / heightSpan;
+            int mappedCol = col / widthSpan;
+            int pixelValue = pixels[i] & 0x000000FF;
+            sumValue[mappedRow][mappedCol] += pixelValue;
+        }
+
+        ArrayList<Double> result = new ArrayList<Double>();
+        for (int i = 0; i < height; i++) {
+            for (int j = 0; j < width; j++) {
+                result.add( sumValue[i][j] / (widthSpan * heightSpan));
+            }
         }
         return result;
     }
@@ -288,11 +352,14 @@ public class MainActivity extends Activity implements
 
         if (this.imageCaptureRequested) {
             Log.i("Zeppelin", "Payload sent");
+            Matrix matrix = new Matrix();
+            matrix.setRotate(90, thermalBitmap.getWidth() / 2, thermalBitmap.getHeight() / 2);
+            Bitmap map = Bitmap.createBitmap(thermalBitmap, 0, 0, thermalBitmap.getWidth(), thermalBitmap.getHeight(), matrix, true);
             //HARD CODE
-            Payload pl = new Payload(22.282464, 114.190497, 400.0, convertPixelData(thermalBitmap));
+            Payload pl = new Payload(latitude, longtitude, altitude, convertPixelData(map, 40, 30));
 
-            Firebase myFirebaseRef = new Firebase("https://scorching-torch-3982.firebaseio.com/frames");
-            myFirebaseRef.push().setValue(pl);
+            Firebase myFirebaseRef = new Firebase("https://flironedemo.firebaseio.com/feed3");
+            myFirebaseRef.setValue(pl);
             this.imageCaptureRequested = false;
         }
 
@@ -416,6 +483,7 @@ public class MainActivity extends Activity implements
     @Override
     protected void onPause() {
         super.onPause();
+        handler.removeCallbacks(timer);
         stopLocationUpdates();
     }
 
@@ -472,13 +540,13 @@ public class MainActivity extends Activity implements
     }
 
     private void updateUI() {
+        //MOCK
         String str = "Lat: ";
-        str = str + String.valueOf(mCurrentLocation.getLatitude());
+        str = str + String.valueOf(latitude);
         str = str + " Lng: ";
-        str = str + String.valueOf(mCurrentLocation.getLongitude());
+        str = str + String.valueOf(longtitude);
         str = str + " updatedAt: " + mLastUpdateTime;
-        str = str + " alt: " + String.valueOf(mCurrentLocation.getAltitude());
-        str = str + mCurrentLocation.getProvider();
+        str = str + " alt: " + String.valueOf(altitude);
         tvInfo.setText(str);
     }
 

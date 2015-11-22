@@ -21,7 +21,8 @@
 
     <FrameLayout android:layout_width="match_parent" android:layout_height="match_parent"
         android:fitsSystemWindows="true"
-        android:id="@+id/fullscreen_content">
+        android:id="@+id/fullscreen_content"
+        >
         <LinearLayout
             android:id="@+id/fullscreen_content_controls_top" style="@android:style/ButtonBar"
             android:layout_width="match_parent"
@@ -118,12 +119,114 @@
             android:layout_marginTop="36dp"
             android:visibility="gone" />
 
-        <TextView
-            android:id="@+id/tvInfo"
+        <RelativeLayout xmlns:android="http://schemas.android.com/apk/res/android"
+            android:layout_width="120dp"
+            android:layout_height="120dp"
+            android:layout_marginTop="60dp"
+            android:layout_gravity="center_horizontal">
+
+            <TextView
+                android:id="@+id/reset"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerHorizontal="true"
+                android:layout_centerVertical="true"
+                android:text="\u2022"
+                android:textSize="40dp"
+                android:gravity="center"
+                android:onClick="onResetClicked"
+                android:textColor="#ffffff"
+                />
+
+            <TextView
+                android:id="@+id/down"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_below="@+id/reset"
+                android:layout_centerHorizontal="true"
+                android:text="\u25bc"
+                android:textSize="40dp"
+                android:gravity="center"
+                android:onClick="onDownClicked"
+                android:textColor="#ffffff"
+                />
+
+            <TextView
+                android:id="@+id/up"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_above="@+id/reset"
+                android:layout_centerHorizontal="true"
+                android:text="\u25b2"
+                android:textSize="40dp"
+                android:gravity="center"
+                android:onClick="onUpClicked"
+                android:textColor="#ffffff"
+                />
+
+            <TextView
+                android:id="@+id/right"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_toRightOf="@+id/reset"
+                android:text="\u25b6"
+                android:textSize="40dp"
+                android:gravity="center"
+                android:onClick="onRightClicked"
+                android:textColor="#ffffff"
+                />
+
+            <TextView
+                android:id="@+id/left"
+                android:layout_width="40dp"
+                android:layout_height="40dp"
+                android:layout_centerVertical="true"
+                android:layout_toLeftOf="@+id/reset"
+                android:text="\u25c0"
+                android:textSize="40dp"
+                android:gravity="center"
+                android:onClick="onLeftClicked"
+                android:textColor="#ffffff"
+                />
+                />
+
+        </RelativeLayout>
+        <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:layout_marginTop="100dp"
-            android:textColor="#FFFFFF"
+            android:orientation="vertical"
+            >
+        <LinearLayout
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content">
+        <TextView
+            android:id="@+id/higher"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="+"
+            android:textSize="40dp"
+            android:gravity="center"
+            android:onClick="onHigherClicked"
+            android:textColor="#ffffff"
             />
+        <TextView
+            android:id="@+id/lower"
+            android:layout_width="40dp"
+            android:layout_height="40dp"
+            android:text="-"
+            android:textSize="40dp"
+            android:gravity="center"
+            android:onClick="onLowerClicked"
+            android:textColor="#ffffff"
+            />
+         </LinearLayout>
+            <TextView
+                android:id="@+id/tvInfo"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:textColor="#FFFFFF"
+                />
+        </LinearLayout>
     </FrameLayout>
 </FrameLayout>
